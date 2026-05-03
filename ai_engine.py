@@ -18,34 +18,43 @@ class AIEngine:
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger("AIEngine")
 
-    def _apply_smart_truncation(self, content, max_tokens=12000):
+    def _apply_smart_truncation(self, content, max_tokens=6000):
         """
         Truncates content if it exceeds the token limit, preserving
         the head and tail of the file to maintain architectural context.
         """
         # Simple character-to-token approximation (approx 4 chars per token)
-        approx_chars = max_tokens * 4
+        approx_chars = int(max_tokens * 4)
         if len(content) <= approx_chars:
             return content
 
-        # Preserve 60% head and 20% tail
-        head_size = int(approx_chars * 0.6)
+        # Preserve 70% head and 20% tail to give more context to the start
+        head_size = int(approx_chars * 0.7)
         tail_size = int(approx_chars * 0.2)
 
-        return f"{content[:head_size]}\n\n... [TRUNCATED FOR CONTEXT WINDOW] ...\n\n{content[-tail_size:]}"
+        return f"{content[:head_size]}\n\n... [TRUNCATED FOR TOKEN LIMIT] ...\n\n{content[-tail_size:]}"
 
     def _call_groq_with_fallback(self, prompt):
         """Tries models in the fallback chain until one succeeds."""
-        models_to_try = [self.primary_model] + [m for m in self.MODEL_FALLBACK_CHAIN if m != self.primary_model]
+        # Prioritize the user's selected model, then fallback through the chain
+        models_to_try = []
+        if self.primary_model:
+            models_to_try.append(self.primary_model)
+
+        for m in self.MODEL_FALLBACK_CHAIN:
+            if m not in models_to_try:
+                models_to_try.append(m)
 
         last_exception = None
         for model in models_to_try:
             try:
+                # Minimizing tokens by using a more concise system prompt
+                # and explicitly asking for brevity in the user prompt.
                 chat_completion = self.client.chat.completions.create(
                     messages=[
                         {
                             "role": "system",
-                            "content": "You are a senior software architect. Always respond with valid JSON."
+                            "content": "You are a senior architect. Be concise. Respond ONLY with JSON."
                         },
                         {
                             "role": "user",
@@ -54,6 +63,7 @@ class AIEngine:
                     ],
                     model=model,
                     response_format={"type": "json_object"},
+                    temperature=0.1, # Lower temperature for more accurate/deterministic results
                 )
                 return chat_completion.choices[0].message.content
             except Exception as e:

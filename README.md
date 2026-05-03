@@ -1,45 +1,57 @@
 # AI System Auditor
 
-A lightweight project analysis tool that combines static analysis with AI-powered insights using Ollama.
+A professional AI-powered codebase auditor that performs static analysis and deep architectural reviews using the Groq API.
 
-## Setup Steps
+## 🚀 Features
+- **Static Analysis**: Detects hardcoded secrets, oversized files, and basic security risks.
+- **AI-Driven Audit**: Leverages high-performance LLMs (via Groq) to summarize file purposes and identify complex bugs or architectural smells.
+- **Smart Context Management**: Implements smart truncation to handle large files without losing structural context.
+- **Robust Reliability**: Built-in model fallback chain to ensure high availability even during API rate limits.
+- **Modern Dashboard**: Professional Streamlit web interface for visualizing health scores, critical risks, and detailed issues.
 
-1. **Install Ollama**:
-   Download and install Ollama from [ollama.com](https://ollama.com).
+## 🛠️ Installation
 
-2. **Pull the Model**:
-   The auditor uses `llama3` by default. Run the following command in your terminal:
+1. **Clone the repository**:
    ```bash
-   ollama pull llama3
+   git clone https://github.com/hamsidhi/AI_system_auditor.git
+   cd AI_system_auditor
    ```
 
-3. **Install Python Dependencies**:
-   The project only requires the `requests` library.
+2. **Install dependencies**:
    ```bash
-   pip install requests
+   pip install -r requirements.txt
    ```
 
-## How to Run
+## 📁 Supported File Types
+The auditor currently analyzes text-based source files:
+- **Code**: `.py`, `.js`, `.html`, `.css`
+- **Config/Data**: `.json`, `.yaml`, `.yml`, `.env`, `.conf`, `.ini`
+- **Documentation**: `.txt`
 
-1. Open your terminal and navigate to the project folder.
-2. Run the auditor by passing the path to the project you want to analyze:
+*Note: Binary files (like `.pdf`, `.docx`, `.png`) are scanned for size and security risks but their contents are not processed by the AI.*
 
-   ```bash
-   python main.py /path/to/your/project
-   ```
+## 💻 Usage
 
-3. **Optional**: Use a different model if installed:
-   ```bash
-   python main.py /path/to/your/project --model mistral
-   ```
+### Web Interface (Recommended)
+Run the Streamlit dashboard:
+```bash
+streamlit run app.py
+```
+1. Enter your **Groq API Key** in the sidebar.
+2. Provide the absolute path to the project you wish to audit.
+3. Click **Run Full Audit**.
 
-## System Requirements
-- CPU: Any modern multi-core CPU.
-- RAM: 16GB recommended (required for running LLMs locally via Ollama).
-- OS: Windows, macOS, or Linux.
+### CLI Mode
+For automated or head-less audits:
+```bash
+python main.py "C:/path/to/your/project" --api-key "your_groq_key"
+```
 
-## Project Structure
-- `main.py`: Entry point and report formatter.
-- `analyzer.py`: Handles file system walking and regex-based static checks.
-- `ai_engine.py`: Manages communication with the Ollama API.
-- `utils/helpers.py`: Utility functions for formatting.
+## ⚙️ Configuration
+The tool uses `config/key.json` to securely persist your API key locally. You can also set the `GROQ_API_KEY` environment variable.
+
+## 🛡️ Security
+This tool is designed for security auditing. It does not transmit your code to any storage; it only sends the content to Groq's inference endpoints for real-time analysis.
+
+## 📄 License
+MIT License
