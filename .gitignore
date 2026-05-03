@@ -1,0 +1,9 @@
+# Ignore dependencies and temporary files
+__pycache__/
+*.pyc
+dist/
+build/
+.env
+config/key.json
+.streamlit/
+audit_report.json
